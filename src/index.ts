@@ -12,28 +12,29 @@ import { registerContentGenerationTools } from "./api/content-generation/index.j
 import { registerMerchantTools } from "./api/merchant/index.js";
 import { registerAppDataTools } from "./api/app-data/index.js";
 import { registerBusinessDataTools } from "./api/business-data/index.js";
+import { registerLocalFalconTools } from "./api/localfalcon/index.js";
 
 async function main() {
   // Get authentication credentials from environment variables
-  const login = process.env.DATAFORSEO_LOGIN;
-  const password = process.env.DATAFORSEO_PASSWORD;
+  const dataForSeoLogin = process.env.DATAFORSEO_LOGIN;
+  const dataForSeoPassword = process.env.DATAFORSEO_PASSWORD;
   
-  if (!login || !password) {
+  if (!dataForSeoLogin || !dataForSeoPassword) {
     console.error("Error: DataForSEO API credentials not provided");
     console.error("Please set DATAFORSEO_LOGIN and DATAFORSEO_PASSWORD environment variables");
     process.exit(1);
   }
   
   // Setup API client
-  const apiClient = setupApiClient(login, password);
+  const apiClient = setupApiClient(dataForSeoLogin, dataForSeoPassword);
   
   // Create an MCP server
   const server = new McpServer({
-    name: "DataForSEO MCP Server",
+    name: "SEO Tools MCP Server",
     version: "1.0.0",
   });
 
-  // Register tools for each API category
+  // Register tools for each DataForSEO API category
   registerSerpTools(server, apiClient);
   registerKeywordsTools(server, apiClient);
   registerLabsTools(server, apiClient);
@@ -45,16 +46,37 @@ async function main() {
   registerMerchantTools(server, apiClient);
   registerAppDataTools(server, apiClient);
   registerBusinessDataTools(server, apiClient);
+  
+  // Register third-party API tools
+  
+  // Local Falcon API (optional integration)
+  const localFalconApiKey = process.env.LOCALFALCON_API_KEY;
+  if (localFalconApiKey) {
+    console.error("Local Falcon API key found - registering Local Falcon tools");
+    registerLocalFalconTools(server, {
+      apiKey: localFalconApiKey,
+      baseUrl: process.env.LOCALFALCON_API_URL // Optional, uses default if not provided
+    });
+  } else {
+    console.error("Local Falcon API key not found - skipping Local Falcon integration");
+    console.error("To enable, set the LOCALFALCON_API_KEY environment variable");
+  }
+  
+  // Add more third-party API integrations here
+  // Example:
+  // if (process.env.ANOTHER_SEO_TOOL_API_KEY) {
+  //   registerAnotherSeoToolTools(server, { apiKey: process.env.ANOTHER_SEO_TOOL_API_KEY });
+  // }
 
   // Start receiving messages on stdin and sending messages on stdout
   const transport = new StdioServerTransport();
-  console.error("DataForSEO MCP Server starting...");
+  console.error("SEO Tools MCP Server starting...");
   
   await server.connect(transport);
-  console.error("DataForSEO MCP Server connected");
+  console.error("SEO Tools MCP Server connected");
 }
 
 main().catch((error) => {
-  console.error("Error in DataForSEO MCP Server:", error);
+  console.error("Error in SEO Tools MCP Server:", error);
   process.exit(1);
 });
