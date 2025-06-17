@@ -18,6 +18,10 @@ This implementation exposes all major DataForSEO API endpoints as MCP tools, whi
 - Type-safe tool definitions with Zod schemas
 - Extensible architecture for adding new API integrations
 
+# Sign up for Data for Seo
+
+https://dataforseo.com/?aff=200885
+
 ### Implemented API Categories
 
 #### DataForSEO API
